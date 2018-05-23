@@ -14,9 +14,11 @@ public class AuthActivity extends AppCompatActivity {
         setContentView(R.layout.activity_auth);
 
         Fragment loginFragment = new LoginFragment();
+        Fragment registrationFragment = new RegistrationFragment();
+
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.fragment_container, loginFragment)
+                .add(R.id.fragment_container, new LoginFragment())
                 .commit();
     }
 }
