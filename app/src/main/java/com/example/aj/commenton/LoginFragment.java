@@ -17,6 +17,7 @@ import android.widget.Button;
 import com.example.aj.commenton.network.retrofit.RetrofitInstance;
 import com.example.aj.commenton.network.retrofit.model.Users;
 import com.example.aj.commenton.network.retrofit.service.AndroidAcademyWebService;
+import com.example.aj.commenton.util.Utils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,6 +45,9 @@ public class LoginFragment extends Fragment{
     @BindView(R.id.login_button) Button mLoginButton;
     @BindView(R.id.registration_button) Button mRegistrationButton;
 
+    private String mEmail;
+    private String mPassword;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -56,42 +60,10 @@ public class LoginFragment extends Fragment{
     @OnClick(R.id.login_button)
     void attemptLogin(){
 
-        removeErrorMessages();
-
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        if (isPasswordValid(password)) {
-            mPasswordLayout.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        if (TextUtils.isEmpty(email)) {
-            mEmailLayout.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailLayout.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            focusView.requestFocus();
-        } else {
+        if (isFormValid() && isNetworkAvailable()) {
             showProgress(true);
 
             hideKeyboardFromFragment(this.getContext(), mLoginFormView);
-
-            if(!isNetworkConnected(this.getContext())){
-                showProgress(false);
-                showMessage(mLoginFormView, R.string.no_internet_connection);
-                return;
-            }
 
             AndroidAcademyWebService androidAcademyService = RetrofitInstance
                     .retrofitInstanceWithAndroidAcademyWithBasicAuth(
@@ -120,6 +92,50 @@ public class LoginFragment extends Fragment{
     public void onResume() {
         super.onResume();
         getActivity().setTitle(R.string.login_text);
+    }
+
+    private boolean isFormValid(){
+
+        removeErrorMessages();
+
+        mEmail = mEmailView.getText().toString();
+        mPassword = mPasswordView.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        if (isPasswordValid(mPassword)) {
+            mPasswordLayout.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
+        if (TextUtils.isEmpty(mEmail)) {
+            mEmailLayout.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            cancel = true;
+        } else if (!isEmailValid(mEmail)) {
+            mEmailLayout.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailView;
+            cancel = true;
+        }
+
+        if (cancel) {
+            focusView.requestFocus();
+            return false;
+
+        } else {
+            return true;
+        }
+    }
+
+    private boolean isNetworkAvailable(){
+        if(!Utils.isNetworkConnected(this.getContext())){
+            showMessage(mLoginFormView, R.string.no_internet_connection);
+            return false;
+        }
+
+        return true;
     }
 
     private void navigateToHome() {

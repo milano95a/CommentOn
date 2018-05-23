@@ -48,6 +48,11 @@ public class RegistrationFragment extends Fragment{
     @BindView(R.id.login_button) Button mLoginButton;
     @BindView(R.id.registration_button) Button mRegistrationButton;
 
+    private String mName;
+    private String mEmail;
+    private String mPassword;
+    private String mConfirmPassword;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -66,65 +71,12 @@ public class RegistrationFragment extends Fragment{
     @OnClick(R.id.registration_button)
     void attemptRegister(){
 
-        removeErrorMessages();
-
-        String name = mNameView.getText().toString();
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-        String confirmPassword = mConfirmPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        if(!password.equals(confirmPassword)){
-            mConfirmPasswordLayout.setError(getString(R.string.error_passwords_do_not_match));
-            focusView = mConfirmPasswordView;
-            cancel = true;
-        }
-
-        if(isPasswordValid(confirmPassword)){
-            mConfirmPasswordLayout.setError(getString(R.string.error_invalid_password));
-            focusView = mConfirmPasswordView;
-            cancel = true;
-        }
-
-        if (isPasswordValid(password)) {
-            mPasswordLayout.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        if (TextUtils.isEmpty(email)) {
-            mEmailLayout.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailLayout.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
-
-        if(TextUtils.isEmpty(name)){
-            mNameLayout.setError(getString(R.string.error_field_required));
-            focusView = mNameView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            focusView.requestFocus();
-        } else {
+        if (isFormValid() && isNetworkAvailable()){
             showProgress(true);
 
             hideKeyboardFromFragment(this.getContext(), mRegistrationForm);
 
-
-            if(!Utils.isNetworkConnected(this.getContext())){
-                showProgress(false);
-                showMessage(mRegistrationForm, R.string.no_internet_connection);
-                return;
-            }
-
-            User user = new User(name,email, password);
+            User user = new User(mName,mEmail, mPassword);
 
             AndroidAcademyWebService androidAcademyService = RetrofitInstance
                     .retrofitInstanceWithAndroidAcademy()
@@ -134,6 +86,7 @@ public class RegistrationFragment extends Fragment{
             RegistrationCallback registrationCallback = new RegistrationCallback();
             registrationCall.enqueue(registrationCallback);
         }
+
     }
 
     @OnClick(R.id.login_button)
@@ -143,7 +96,70 @@ public class RegistrationFragment extends Fragment{
                 .setCustomAnimations(R.anim.enter_from_left,R.anim.exit_to_right)
                 .replace(R.id.fragment_container, new LoginFragment())
                 .commit();
+    }
 
+    private boolean isFormValid(){
+
+        removeErrorMessages();
+
+        mName = mNameView.getText().toString();
+        mEmail = mEmailView.getText().toString();
+        mPassword = mPasswordView.getText().toString();
+        mConfirmPassword = mConfirmPasswordView.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        if(!mPassword.equals(mConfirmPassword)){
+            mConfirmPasswordLayout.setError(getString(R.string.error_passwords_do_not_match));
+            focusView = mConfirmPasswordView;
+            cancel = true;
+        }
+
+        if(isPasswordValid(mConfirmPassword)){
+            mConfirmPasswordLayout.setError(getString(R.string.error_invalid_password));
+            focusView = mConfirmPasswordView;
+            cancel = true;
+        }
+
+        if (isPasswordValid(mPassword)) {
+            mPasswordLayout.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
+        if (TextUtils.isEmpty(mEmail)) {
+            mEmailLayout.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            cancel = true;
+        } else if (!isEmailValid(mEmail)) {
+            mEmailLayout.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailView;
+            cancel = true;
+        }
+
+        if(TextUtils.isEmpty(mName)){
+            mNameLayout.setError(getString(R.string.error_field_required));
+            focusView = mNameView;
+            cancel = true;
+        }
+
+        if (cancel) {
+            focusView.requestFocus();
+            return false;
+
+        } else {
+            return true;
+        }
+    }
+
+    private boolean isNetworkAvailable(){
+        if(!Utils.isNetworkConnected(this.getContext())){
+            showMessage(mRegistrationForm, R.string.no_internet_connection);
+            return false;
+        }
+
+        return true;
     }
 
     private void navigateToHome() {
