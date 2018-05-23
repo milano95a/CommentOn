@@ -1,10 +1,11 @@
-package com.example.aj.commenton;
+package com.example.aj.commenton.UI;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.aj.commenton.R;
 import com.example.aj.commenton.exception.AuthenticationClientNotFound;
 import com.example.aj.commenton.network.retrofit.RetrofitInstance;
 import com.example.aj.commenton.network.retrofit.model.Albums;

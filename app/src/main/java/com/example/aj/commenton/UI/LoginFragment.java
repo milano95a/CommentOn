@@ -1,4 +1,4 @@
-package com.example.aj.commenton;
+package com.example.aj.commenton.UI;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.aj.commenton.R;
 import com.example.aj.commenton.network.retrofit.RetrofitInstance;
 import com.example.aj.commenton.network.retrofit.model.Users;
 import com.example.aj.commenton.network.retrofit.service.AndroidAcademyWebService;
@@ -28,7 +29,6 @@ import retrofit2.Response;
 
 import static com.example.aj.commenton.util.Utils.hideKeyboardFromFragment;
 import static com.example.aj.commenton.util.Utils.isEmailValid;
-import static com.example.aj.commenton.util.Utils.isNetworkConnected;
 import static com.example.aj.commenton.util.Utils.isPasswordValid;
 import static com.example.aj.commenton.util.Utils.showMessage;
 
