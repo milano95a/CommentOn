@@ -13,9 +13,10 @@ public class AuthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
-        Fragment loginFragment = new LoginFragment();
-        Fragment registrationFragment = new RegistrationFragment();
+        navigateToLogin();
+    }
 
+    private void navigateToLogin(){
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.fragment_container, new LoginFragment())

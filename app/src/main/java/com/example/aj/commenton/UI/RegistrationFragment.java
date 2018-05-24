@@ -166,7 +166,7 @@ public class RegistrationFragment extends Fragment{
     private void navigateToHome() {
         Intent intent = new Intent(
                 RegistrationFragment.this.getActivity(),
-                HomeActivity.class);
+                AlbumListActivity.class);
         RegistrationFragment.this.getActivity().finish();
         startActivity(intent);
     }

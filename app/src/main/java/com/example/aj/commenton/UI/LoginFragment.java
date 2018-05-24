@@ -141,7 +141,7 @@ public class LoginFragment extends Fragment{
     private void navigateToHome() {
         Intent intent = new Intent(
                 LoginFragment.this.getActivity(),
-                HomeActivity.class);
+                AlbumListActivity.class);
         LoginFragment.this.getActivity().finish();
         startActivity(intent);
     }

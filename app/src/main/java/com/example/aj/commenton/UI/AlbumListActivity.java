@@ -23,7 +23,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
+public class AlbumListActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
+
+//    TODO: no internet connection case
+//    todo: no dat case
+//    todo: fix up design of items
 
     private final String LOG_TAG = LoginFragment.class.getName();
 
@@ -36,7 +40,7 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
     private int mLastPage = 1;
     private  int mFirstPage = 1;
     private ArrayList<Album> mAlbums;
-    private boolean isRefreshing = false;
+    private boolean isRefreshing = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +49,7 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
         ButterKnife.bind(this);
 
         init();
+
         loadAlbumsByPageNumber(mFirstPage);
     }
 
