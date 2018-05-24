@@ -21,4 +21,6 @@
     <string name="unknown_exception">Unknown exception occured, please try again</string>
     <string name="check_your_email">Check your email</string>
     <string name="check_your_password">Check your password</string>
+    <string name="comment_placeholder">Comment</string>
+    <string name="post_button">Post</string>
 </resources>

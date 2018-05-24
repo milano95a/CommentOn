@@ -48,5 +48,13 @@ public class Utils {
                 .show();
     }
 
+    public static String convertLongDateToStringDate(long date){
+        return "19-19-19";
+    }
+
+    public static long convertStringDateToLongDate(String date){
+        return 1;
+    }
+
 
 }

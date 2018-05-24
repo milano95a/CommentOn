@@ -4,6 +4,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class Album {
 
+    @SerializedName("id")
+    public int id;
+
     @SerializedName("name")
     public String name;
 
@@ -40,6 +43,14 @@ public class Album {
     public Album setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
         return this;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public boolean isLast() {

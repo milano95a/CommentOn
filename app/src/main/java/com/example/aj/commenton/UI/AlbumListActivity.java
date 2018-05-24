@@ -36,10 +36,10 @@ public class AlbumListActivity extends AppCompatActivity implements SwipeRefresh
 
     private AlbumAdapter mAdapter;
     private LinearLayoutManager mLinearLayoutManager;
+    private ArrayList<Album> mAlbums;
     private EndlessRecyclerViewScrollListener scrollListener;
     private int mLastPage = 1;
     private  int mFirstPage = 1;
-    private ArrayList<Album> mAlbums;
     private boolean isRefreshing = true;
 
     @Override

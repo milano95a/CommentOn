@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".UI.AuthActivity"></activity>
+        <activity android:name=".UI.AuthActivity" />
         <activity android:name=".UI.AlbumListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +24,9 @@
         <activity
             android:name=".UI.AlbumItemActivity"
             android:parentActivityName=".UI.AlbumListActivity" />
-        <activity android:name=".UI.CommentActivity"></activity>
+        <activity
+            android:name=".UI.CommentActivity"
+            android:parentActivityName=".UI.AlbumItemActivity"/>
     </application>
 
 </manifest>
