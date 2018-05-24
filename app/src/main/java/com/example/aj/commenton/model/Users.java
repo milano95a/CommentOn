@@ -1,8 +1,6 @@
-package com.example.aj.commenton.network.retrofit.model;
+package com.example.aj.commenton.model;
 
 import com.google.gson.annotations.SerializedName;
-
-import java.util.List;
 
 public class Users {
     @SerializedName("data")

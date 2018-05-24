@@ -16,7 +16,7 @@ import android.widget.Button;
 
 import com.example.aj.commenton.R;
 import com.example.aj.commenton.network.retrofit.RetrofitInstance;
-import com.example.aj.commenton.network.retrofit.model.User;
+import com.example.aj.commenton.model.User;
 import com.example.aj.commenton.network.retrofit.service.AndroidAcademyWebService;
 import com.example.aj.commenton.util.Utils;
 
