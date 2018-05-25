@@ -73,7 +73,7 @@ public class AlbumRepo {
 
         @Override
         protected void onPostExecute(ArrayList<Album> albumList) {
-            mReadAlbumListener.dataRetrievedFromCache(albumList);
+            mReadAlbumListener.onDataRetrievedFromCache(albumList);
         }
     }
 }

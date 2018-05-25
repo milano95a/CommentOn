@@ -7,5 +7,5 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface ReadAlbumListener {
-    void dataRetrievedFromCache(ArrayList<Album> albumList);
+    void onDataRetrievedFromCache(ArrayList<Album> albumList);
 }
