@@ -3,7 +3,8 @@ package com.example.aj.commenton.db;
 import android.app.Application;
 import android.os.AsyncTask;
 
-import com.example.aj.commenton.ReadAlbumListener;
+import com.example.aj.commenton.listener.ReadAlbumListener;
+import com.example.aj.commenton.model.Album;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,45 +20,18 @@ public class AlbumRepo {
         mReadListener = listener;
     }
 
-    List<AlbumEntity> getAlbums(){
-        return mAlbumDAO.getAllAlbums();
-    }
+    public void insertAll(ArrayList<Album> arrayList){
+        Album[] albums = new Album[arrayList.size()];
+        albums = arrayList.toArray(albums);
 
-    public void insert(AlbumEntity album){
-        new insertAsyncTask(mAlbumDAO).execute(album);
-    }
-
-    public void insertAll(ArrayList<AlbumEntity> arrayList){
-        AlbumEntity[] albumEntities = new AlbumEntity[arrayList.size()];
-        albumEntities = arrayList.toArray(albumEntities);
-
-        new insertAllAsyncTask(mAlbumDAO).execute(albumEntities);
+        new insertAllAsyncTask(mAlbumDAO).execute(albums);
     }
 
     public void retrieveCache(){
         new retrieveCache(mAlbumDAO, mReadListener).execute();
     }
 
-    public int countNumberOfAlbums(){
-        return mAlbumDAO.getNumberOfAlbums();
-    }
-
-    private static class insertAsyncTask extends AsyncTask<AlbumEntity, Void, Void> {
-
-        private AlbumDAO mAsyncTaskDao;
-
-        insertAsyncTask(AlbumDAO dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final AlbumEntity... params) {
-            mAsyncTaskDao.insert(params[0]);
-            return null;
-        }
-    }
-
-    private static class insertAllAsyncTask extends AsyncTask<AlbumEntity[], Void, Void> {
+    private static class insertAllAsyncTask extends AsyncTask<Album[], Void, Void> {
 
         private AlbumDAO mAsyncTaskDao;
 
@@ -66,17 +40,17 @@ public class AlbumRepo {
         }
 
         @Override
-        protected Void doInBackground(final AlbumEntity[]... params) {
-            AlbumEntity[] albumEntities = params[0];
+        protected Void doInBackground(final Album[]... params) {
+            Album[] albums = params[0];
 
-            for(int i = 0; i < albumEntities.length; i++){
-                mAsyncTaskDao.insert(albumEntities[i]);
+            for(int i = 0; i < albums.length; i++){
+                mAsyncTaskDao.insert(albums[i].toAlbumEntity());
             }
             return null;
         }
     }
 
-    private static class retrieveCache extends AsyncTask<Void, Void, List<AlbumEntity>> {
+    private static class retrieveCache extends AsyncTask<Void, Void, ArrayList<Album>> {
 
         private AlbumDAO mAsyncTaskDao;
         private ReadAlbumListener mReadAlbumListener;
@@ -87,13 +61,19 @@ public class AlbumRepo {
         }
 
         @Override
-        protected List<AlbumEntity> doInBackground(final Void... params) {
-            return mAsyncTaskDao.getAllAlbums();
+        protected ArrayList<Album> doInBackground(final Void... params) {
+            List<AlbumEntity> albumEntities = mAsyncTaskDao.getAllAlbums();
+            ArrayList<Album> albumArrayList = new ArrayList<>();
+
+            for(AlbumEntity a : albumEntities){
+                albumArrayList.add(a.toAlbumObject());
+            }
+            return albumArrayList;
         }
 
         @Override
-        protected void onPostExecute(List<AlbumEntity> albumEntities) {
-            mReadAlbumListener.dataRetrievedFromCache(albumEntities);
+        protected void onPostExecute(ArrayList<Album> albumList) {
+            mReadAlbumListener.dataRetrievedFromCache(albumList);
         }
     }
 }

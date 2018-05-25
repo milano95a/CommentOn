@@ -17,7 +17,8 @@ import android.widget.Button;
 import com.example.aj.commenton.R;
 import com.example.aj.commenton.network.retrofit.RetrofitInstance;
 import com.example.aj.commenton.model.User;
-import com.example.aj.commenton.network.retrofit.service.AndroidAcademyWebService;
+import com.example.aj.commenton.network.service.AndroidAcademyWebService;
+import com.example.aj.commenton.util.Constants;
 import com.example.aj.commenton.util.Utils;
 
 import butterknife.BindView;
@@ -189,7 +190,7 @@ public class RegistrationFragment extends Fragment{
         public void onResponse(Call<Void> call, Response<Void> response) {
             if(response.isSuccessful()){
                 Log.wtf(LOG_TAG,"SUCCESS");
-
+                Utils.storeValue(getActivity(), Constants.USERNAME,mName);
                 navigateToHome();
             }else{
                 Log.wtf(LOG_TAG,"FAILED");

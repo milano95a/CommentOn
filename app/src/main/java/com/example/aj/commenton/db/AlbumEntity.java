@@ -5,6 +5,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
+import com.example.aj.commenton.model.Album;
 import com.google.gson.annotations.SerializedName;
 
 @Entity(tableName = "album_table")
@@ -32,6 +33,15 @@ public class AlbumEntity {
         this.id = id;
     }
 
+    public AlbumEntity(int id, @NonNull String name, int songCount, String releaseDate) {
+        this.id = id;
+        this.name = name;
+        this.songCount = songCount;
+        this.releaseDate = releaseDate;
+    }
+
+    public AlbumEntity() { }
+
     @NonNull
     public String getName() {
         return name;
@@ -55,5 +65,9 @@ public class AlbumEntity {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public Album toAlbumObject() {
+        return new Album(this.id,this.name,this.songCount,this.releaseDate);
     }
 }

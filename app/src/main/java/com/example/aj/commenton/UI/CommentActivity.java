@@ -20,7 +20,7 @@ import com.example.aj.commenton.model.Album;
 import com.example.aj.commenton.model.Comment;
 import com.example.aj.commenton.model.Comments;
 import com.example.aj.commenton.network.retrofit.RetrofitInstance;
-import com.example.aj.commenton.network.retrofit.service.AndroidAcademyWebService;
+import com.example.aj.commenton.network.service.AndroidAcademyWebService;
 import com.example.aj.commenton.util.Utils;
 import com.google.gson.Gson;
 
@@ -59,6 +59,7 @@ public class CommentActivity extends AppCompatActivity implements Callback<Comme
         setContentView(R.layout.activity_comment);
         ButterKnife.bind(this);
 
+//        Log.wtf(LOG_TAG, "" + Utils.convertStringDate("2018-05-04T15:49:27+00:00"));
         init();
     }
 
@@ -141,9 +142,9 @@ public class CommentActivity extends AppCompatActivity implements Callback<Comme
 
     private void addCommentToList(String comment){
         mComments.add(new Comment(
-                "author",
+                getAuthorName(),
                 comment,
-                Utils.convertLongDateToStringDate(new Date().getTime())));
+                Utils.convertDateToString(new Date())));
         mAdapter.notifyItemInserted(mComments.size());
         scrollToBottom();
         clearEditFields();
@@ -194,5 +195,9 @@ public class CommentActivity extends AppCompatActivity implements Callback<Comme
         Intent intent = new Intent(this, AuthActivity.class);
         finish();
         startActivity(intent);
+    }
+
+    public String getAuthorName() {
+        return Utils.retrieveValue(this,Constants.USERNAME);
     }
 }

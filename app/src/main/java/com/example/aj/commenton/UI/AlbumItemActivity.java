@@ -46,8 +46,8 @@ public class AlbumItemActivity extends AppCompatActivity {
             setTitle(mAlbum.getName());
 
             mTextViewSongName.setText(mAlbum.getName());
-            mTextViewSongCount.setText(String.valueOf(mAlbum.getSongCount()));
-            mTextViewReleaseDate.setText(mAlbum.getReleaseDate().substring(0,4));
+            mTextViewSongCount.setText("Songs " + String.valueOf(mAlbum.getSongCount()));
+            mTextViewReleaseDate.setText("Released " + mAlbum.getReleaseDate().substring(0,4));
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_comment);

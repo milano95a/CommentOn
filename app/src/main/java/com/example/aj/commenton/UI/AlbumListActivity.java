@@ -1,7 +1,6 @@
 package com.example.aj.commenton.UI;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,20 +11,17 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.aj.commenton.R;
-import com.example.aj.commenton.ReadAlbumListener;
+import com.example.aj.commenton.listener.ReadAlbumListener;
 import com.example.aj.commenton.adapter.AlbumAdapter;
-import com.example.aj.commenton.db.AlbumDAO;
-import com.example.aj.commenton.db.AlbumEntity;
 import com.example.aj.commenton.db.AlbumRepo;
 import com.example.aj.commenton.listener.EndlessRecyclerViewScrollListener;
 import com.example.aj.commenton.model.Album;
 import com.example.aj.commenton.model.Albums;
 import com.example.aj.commenton.network.retrofit.RetrofitInstance;
-import com.example.aj.commenton.network.retrofit.service.AndroidAcademyWebService;
+import com.example.aj.commenton.network.service.AndroidAcademyWebService;
 import com.example.aj.commenton.util.Utils;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,10 +29,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.example.aj.commenton.util.Utils.isNetworkConnected;
+
 public class AlbumListActivity extends AppCompatActivity
         implements SwipeRefreshLayout.OnRefreshListener, ReadAlbumListener{
 
-//    TODO: no internet connection case
+//    done: no internet connection case
 //    todo: no data case
 //    todo: fix up design of items
 
@@ -49,7 +47,7 @@ public class AlbumListActivity extends AppCompatActivity
     private AlbumAdapter mAdapter;
     private LinearLayoutManager mLinearLayoutManager;
     private ArrayList<Album> mAlbums;
-//    private EndlessRecyclerViewScrollListener scrollListener;
+    private EndlessRecyclerViewScrollListener mScrollListener;
     private int mLastPage = 1;
     private  int mFirstPage = 1;
     private boolean isRefreshing = true;
@@ -78,17 +76,30 @@ public class AlbumListActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    @Override
+    public void dataRetrievedFromCache(ArrayList<Album> cachedAlbumList) {
+        Log.wtf(LOG_TAG, "Albums: ");
+        showProgressBar(false);
+
+        if(isCacheAvailable(cachedAlbumList)){
+            showNoInternetConnectionView(false);
+            Utils.showMessage(mSwipeRefreshLayout,R.string.no_internet_connection);
+            populateList(cachedAlbumList);
+        }else{
+            mRecyclerView.setVisibility(View.GONE);
+            mTextViewNoInternet.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void init(){
         mAlbums = new ArrayList<>();
         mAlbumRepo = new AlbumRepo(getApplication(), this);
-
         mAdapter = new AlbumAdapter(this,mAlbums);
         mLinearLayoutManager = new LinearLayoutManager(this);
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mRecyclerView.addOnScrollListener(makeScrollListener());
-
+        mScrollListener = makeScrollListener();
         mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
@@ -108,23 +119,12 @@ public class AlbumListActivity extends AppCompatActivity
                 showProgressBar(true);
             }
 
-            if(!Utils.isNetworkConnected(this)){
-                mTextViewNoInternet.setVisibility(View.GONE);
-                mRecyclerView.setVisibility(View.VISIBLE);
+            if(!isNetworkConnected(this)){
+                removeEndlessScrollListener();
                 populateListFromCache();
                 return;
-
-//                if(isDataCached()){
-//
-//                }else{
-//                    mTextViewNoInternet.setVisibility(View.VISIBLE);
-//                    mRecyclerView.setVisibility(View.GONE);
-//                    showProgressBar(false);
-//                    return;
-//                }
             }else{
-                mTextViewNoInternet.setVisibility(View.GONE);
-                mRecyclerView.setVisibility(View.VISIBLE);
+                showNoInternetConnectionView(false);
             }
 
             AndroidAcademyWebService webService = RetrofitInstance
@@ -145,11 +145,15 @@ public class AlbumListActivity extends AppCompatActivity
         }
     }
 
+    private void removeEndlessScrollListener() {
+        mRecyclerView.removeOnScrollListener(mScrollListener);
+    }
+
     private void populateListFromCache() {
         mAlbumRepo.retrieveCache();
     }
 
-    private void updateList(ArrayList<Album> albumArrayList) {
+    private void populateListWithConsecutivePage(ArrayList<Album> albumArrayList) {
 
         if(mLastPage > 1){
             if(mAlbums.get(mAlbums.size() -1).isLast){
@@ -164,24 +168,25 @@ public class AlbumListActivity extends AppCompatActivity
 
         int currentSize = mAdapter.getItemCount();
 
-        mAlbums.addAll(albumArrayList);
+        addAllItemsToList(albumArrayList);
+//        mAlbums.addAll(albumArrayList);
         cacheData(mAlbums);
-        mAlbums.add(new Album().setLast(true));
+        addItemToList(new Album().setLast(true));
+//        mAlbums.add(new Album().setLast(true));
         mAdapter.notifyItemRangeInserted(currentSize,mAlbums.size() -1);
     }
 
-    private void displayFirstPage(ArrayList<Album> albumArrayList) {
-        int numOfAlbums = mAlbums.size();
-        mAlbums.clear();
-        mAdapter.notifyItemRangeRemoved(0,numOfAlbums);
+    private void populateListWithFirstPage(ArrayList<Album> albumArrayList) {
+        clearList();
 
-        EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(mLinearLayoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                mLastPage++;
-                loadAlbumsByPageNumber(mLastPage);
-            }
-        };
+        EndlessRecyclerViewScrollListener scrollListener = makeScrollListener();
+//        new EndlessRecyclerViewScrollListener(mLinearLayoutManager) {
+//            @Override
+//            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+//                mLastPage++;
+//                loadAlbumsByPageNumber(mLastPage);
+//            }
+//        };
 
         mRecyclerView.addOnScrollListener(scrollListener);
 
@@ -189,30 +194,21 @@ public class AlbumListActivity extends AppCompatActivity
 
         int currentSize = mAdapter.getItemCount();
 
-        mAlbums.addAll(albumArrayList);
+//        mAlbums.addAll(albumArrayList);
+        addAllItemsToList(albumArrayList);
         cacheData(mAlbums);
-        mAlbums.add(new Album().setLast(true));
+        addItemToList(new Album().setLast(true));
+//        mAlbums.add(new Album().setLast(true));
         mAdapter.notifyItemRangeInserted(currentSize,mAlbums.size() -1);
     }
 
-    private void cacheData(ArrayList<Album> albumArrayList) {
-        mAlbumRepo.insertAll(convertAlbumsToEntities(albumArrayList));
+    private void clearList() {
+        mAlbums.clear();
+        mAdapter.notifyDataSetChanged();
     }
 
-    private ArrayList<AlbumEntity> convertAlbumsToEntities(ArrayList<Album> albumArrayList){
-        ArrayList<AlbumEntity> albumEntities = new ArrayList<>();
-
-        for(Album a : albumArrayList){
-            AlbumEntity albumEntity = new AlbumEntity();
-            albumEntity.setId(a.getId());
-            albumEntity.setName(a.getName());
-            albumEntity.setReleaseDate(a.getReleaseDate());
-            albumEntity.setSongCount(a.getSongCount());
-
-            albumEntities.add(albumEntity);
-        }
-
-        return albumEntities;
+    private void cacheData(ArrayList<Album> albumArrayList) {
+        mAlbumRepo.insertAll(albumArrayList);
     }
 
     class AlbumCallback implements Callback<Albums>{
@@ -224,9 +220,9 @@ public class AlbumListActivity extends AppCompatActivity
             if(response.isSuccessful()){
                 if(isRefreshing){
                     isRefreshing = false;
-                    displayFirstPage(response.body().getData());
+                    populateListWithFirstPage(response.body().getData());
                 }else{
-                    updateList(response.body().getData());
+                    populateListWithConsecutivePage(response.body().getData());
                 }
             }else{
                 Log.wtf(LOG_TAG, "Failed: " + response.code());
@@ -237,33 +233,41 @@ public class AlbumListActivity extends AppCompatActivity
             showProgressBar(false);
             Log.wtf(LOG_TAG, t.getMessage());
         }
+
     }
 
     private void showProgressBar(boolean refresh) {
         mSwipeRefreshLayout.setRefreshing(refresh);
     }
 
-    @Override
-    public void dataRetrievedFromCache(List<AlbumEntity> albumEntities) {
-        Log.wtf(LOG_TAG, "Albums: ");
-        showProgressBar(false);
+    private void showNoInternetConnectionView(boolean show) {
+        mRecyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mTextViewNoInternet.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
 
-        if(albumEntities.size() > 0){
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mTextViewNoInternet.setVisibility(View.GONE);
-            Utils.showMessage(mSwipeRefreshLayout,R.string.no_internet_connection);
-        }else{
-            mRecyclerView.setVisibility(View.GONE);
-            mTextViewNoInternet.setVisibility(View.VISIBLE);
+    private boolean isCacheAvailable(ArrayList<Album> albumList) {
+        return albumList.size() > 0;
+    }
+
+    private void populateList(ArrayList<Album> albumArrayList){
+        clearList();
+
+        addAllItemsToList(albumArrayList);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void addItemToList(Album album){
+        if(!mAlbums.contains(album)){
+            mAlbums.add(album);
         }
     }
 
-    private ArrayList<Album> create(){
-        ArrayList<Album> albums = new ArrayList<>();
-        for(int i = mAlbums.size(), k = mAlbums.size() + 7; i < k; i++){
-            albums.add(new Album().setName("Album " + i).setReleaseDate("1995").setSongCount(13));
+    private void addAllItemsToList(ArrayList<Album> albums){
+        for(Album newAlbum : albums){
+            if(!mAlbums.contains(newAlbum)){
+                mAlbums.add(newAlbum);
+            }
         }
-
-        return albums;
     }
+
 }

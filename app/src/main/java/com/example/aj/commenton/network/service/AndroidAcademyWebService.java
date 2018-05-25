@@ -1,4 +1,4 @@
-package com.example.aj.commenton.network.retrofit.service;
+package com.example.aj.commenton.network.service;
 
 import com.example.aj.commenton.model.Albums;
 import com.example.aj.commenton.model.Comment;

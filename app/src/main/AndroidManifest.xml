@@ -15,18 +15,20 @@
         android:theme="@style/AppTheme">
         <activity android:name=".UI.AuthActivity" />
         <activity android:name=".UI.AlbumListActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".UI.AlbumItemActivity"
             android:parentActivityName=".UI.AlbumListActivity" />
         <activity
             android:name=".UI.CommentActivity"
-            android:parentActivityName=".UI.AlbumItemActivity"/>
+            android:parentActivityName=".UI.AlbumItemActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
     </application>
 
 </manifest>

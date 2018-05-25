@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.example.aj.commenton.R;
 import com.example.aj.commenton.model.Comment;
+import com.example.aj.commenton.util.Utils;
 
 import java.util.ArrayList;
 
@@ -35,8 +36,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
         holder.comment.setText(mCommentList.get(position).getText());
         holder.author.setText(mCommentList.get(position).getAuthor());
-        holder.time.setText(mCommentList.get(position).getTimestamp().substring(0,4));
-
+        holder.time.setText(Utils.convertStringDate(mCommentList.get(position).getTimestamp()));
     }
 
     @Override

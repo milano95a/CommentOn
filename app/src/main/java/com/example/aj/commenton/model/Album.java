@@ -2,6 +2,7 @@ package com.example.aj.commenton.model;
 
 import android.arch.persistence.room.Entity;
 
+import com.example.aj.commenton.db.AlbumEntity;
 import com.google.gson.annotations.SerializedName;
 
 public class Album {
@@ -27,6 +28,16 @@ public class Album {
     public Album setName(String name) {
         this.name = name;
         return this;
+    }
+
+    public Album() {
+    }
+
+    public Album(int id, String name, int songCount, String releaseDate) {
+        this.id = id;
+        this.name = name;
+        this.songCount = songCount;
+        this.releaseDate = releaseDate;
     }
 
     public int getSongCount() {
@@ -62,5 +73,27 @@ public class Album {
     public Album setLast(boolean last) {
         isLast = last;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if(!(obj instanceof Album)){
+            return  false;
+        }
+
+        Album a = (Album)obj;
+
+        return this.getId() == a.getId();
+    }
+
+    public AlbumEntity toAlbumEntity() {
+        AlbumEntity albumEntity = new AlbumEntity();
+        albumEntity.setId(this.getId());
+        albumEntity.setName(this.getName());
+        albumEntity.setReleaseDate(this.getReleaseDate());
+        albumEntity.setSongCount(this.getSongCount());
+
+        return albumEntity;
     }
 }
