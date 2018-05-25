@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.aj.commenton.util.Constants;
 import com.example.aj.commenton.R;
@@ -27,6 +28,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Date;
 
+import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import retrofit2.Call;
@@ -47,6 +49,13 @@ public class CommentActivity extends AppCompatActivity implements Callback<Comme
     @BindView(R.id.edt_comment) EditText mEdtComment;
     @BindView(R.id.btn_post) Button mBtnPost;
     @BindView(R.id.pb_post) ProgressBar mPbarPost;
+
+    @BindView(R.id.ly_no_internet) View mNoInternetView;
+    @BindView(R.id.txt_no_internet) TextView mTextViewNoInternet;
+    @BindView(R.id.btn_try_again) Button mBtnTryAgain;
+
+    @BindView(R.id.progress_bar) ProgressBar mProgressBar;
+    @BindView(R.id.ly_comment_view) View vCommentView;
 
     private Album mAlbum;
     private CommentAdapter mAdapter;
@@ -81,7 +90,6 @@ public class CommentActivity extends AppCompatActivity implements Callback<Comme
             setTitle(mAlbum.getName());
         }
 
-        getListOfComments();
 
         mBtnPost.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +98,35 @@ public class CommentActivity extends AppCompatActivity implements Callback<Comme
             }
         });
 
+        mBtnTryAgain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                showProgressBar(true);
+
+                if(!Utils.isNetworkConnected(CommentActivity.this)){
+                    showNoInternetWindow(true);
+                    showProgressBar(false);
+                }else{
+                    getListOfComments();
+                }
+            }
+        });
+
+        if(!Utils.isNetworkConnected(this)){
+
+        }else{
+            getListOfComments();
+
+        }
+    }
+
+    private void showNoInternetWindow(boolean show){
+        mNoInternetView.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void showProgressBar(boolean show){
+        mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void getListOfComments(){

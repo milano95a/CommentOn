@@ -23,4 +23,5 @@
     <string name="check_your_password">Check your password</string>
     <string name="comment_placeholder">Comment</string>
     <string name="post_button">Post</string>
+    <string name="btn_try_again">try again</string>
 </resources>

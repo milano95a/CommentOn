@@ -30,10 +30,11 @@ import retrofit2.Response;
 
 import static com.example.aj.commenton.util.Utils.hideKeyboardFromFragment;
 import static com.example.aj.commenton.util.Utils.isEmailValid;
+import static com.example.aj.commenton.util.Utils.isNetworkConnected;
 import static com.example.aj.commenton.util.Utils.isPasswordValid;
 import static com.example.aj.commenton.util.Utils.showMessage;
 
-public class LoginFragment extends Fragment{
+public class LoginFragment extends Fragment implements Callback<Users>{
 
     private final String LOG_TAG = LoginFragment.class.getName();
 
@@ -61,22 +62,23 @@ public class LoginFragment extends Fragment{
     @OnClick(R.id.login_button)
     void attemptLogin(){
 
-        if (isFormValid() && isNetworkAvailable()) {
-            showProgress(true);
+        if (isFormValid()) {
+            if(isNetworkConnected(getActivity())){
+                showProgress(true);
 
-            hideKeyboardFromFragment(this.getContext(), mLoginFormView);
+                hideKeyboard();
 
-            AndroidAcademyWebService androidAcademyService = RetrofitInstance
-                    .retrofitInstanceWithAndroidAcademyWithBasicAuth(
-                            mEmailView.getText().toString(),
-                            mPasswordView.getText().toString())
-                    .create(AndroidAcademyWebService.class);
+                AndroidAcademyWebService webService = RetrofitInstance
+                        .retrofitInstanceWithAndroidAcademyWithBasicAuth(
+                                mEmailView.getText().toString(),
+                                mPasswordView.getText().toString())
+                        .create(AndroidAcademyWebService.class);
 
-            Call<Users> loginCall = androidAcademyService.user();
-
-            LoginCallback loginCallback = new LoginCallback();
-
-            loginCall.enqueue(loginCallback);
+                Call<Users> loginTask = webService.getUser();
+                loginTask.enqueue(this);
+            }else{
+                showMessage(mLoginFormView, R.string.no_internet_connection);
+            }
         }
     }
 
@@ -93,6 +95,37 @@ public class LoginFragment extends Fragment{
     public void onResume() {
         super.onResume();
         getActivity().setTitle(R.string.login_text);
+    }
+
+    @Override
+    public void onResponse(@NonNull Call<Users> call, @NonNull Response<Users> response) {
+
+        if(response.isSuccessful()){
+
+            saveUserName(response.body().getData().name);
+
+            navigateToHome();
+        }else{
+            showProgress(false);
+
+            mEmailLayout.setError(getString(R.string.check_your_email));
+            mEmailView.requestFocus();
+            mPasswordLayout.setError(getString(R.string.check_your_password));
+        }
+    }
+
+    @Override
+    public void onFailure(Call<Users> call, Throwable t) {
+        showProgress(false);
+        showMessage(mLoginFormView, R.string.unknown_exception);
+    }
+
+    private void hideKeyboard() {
+        hideKeyboardFromFragment(this.getContext(), mLoginFormView);
+    }
+
+    private void saveUserName(String username) {
+        Utils.storeValue(getActivity(), Constants.USERNAME,username);
     }
 
     private boolean isFormValid(){
@@ -130,15 +163,6 @@ public class LoginFragment extends Fragment{
         }
     }
 
-    private boolean isNetworkAvailable(){
-        if(!Utils.isNetworkConnected(this.getContext())){
-            showMessage(mLoginFormView, R.string.no_internet_connection);
-            return false;
-        }
-
-        return true;
-    }
-
     private void navigateToHome() {
         Intent intent = new Intent(
                 LoginFragment.this.getActivity(),
@@ -155,32 +179,5 @@ public class LoginFragment extends Fragment{
     private void showProgress(boolean show) {
         mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
         mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-    }
-
-    class LoginCallback implements Callback<Users>{
-        @Override
-        public void onResponse(Call<Users> call, Response<Users> response) {
-            if(response.isSuccessful()){
-                Log.wtf(LOG_TAG,"SUCCESS");
-                Utils.storeValue(getActivity(), Constants.USERNAME,response.body().getData().name);
-
-                navigateToHome();
-            }else{
-                Log.wtf(LOG_TAG,"FAILED");
-
-                showProgress(false);
-
-                mEmailLayout.setError(getString(R.string.check_your_email));
-                mPasswordLayout.setError(getString(R.string.check_your_password));
-
-                mEmailView.requestFocus();
-            }
-        }
-
-        @Override
-        public void onFailure(Call<Users> call, Throwable t) {
-            showProgress(false);
-            showMessage(mLoginFormView, R.string.unknown_exception);
-        }
     }
 }

@@ -6,6 +6,35 @@
     android:layout_width="match_parent"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <LinearLayout
+        android:id="@+id/ly_no_internet"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/txt_no_internet"
+            android:text="@string/no_internet_connection"
+            android:layout_gravity=""
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btn_try_again"
+            android:text="@string/btn_try_again"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_comment_list"
         android:layout_weight="1"
@@ -16,6 +45,7 @@
     </android.support.v7.widget.RecyclerView>
 
     <LinearLayout
+        android:id="@+id/ly_comment_view"
         android:background="@color/silver"
         android:padding="10dp"
         android:orientation="horizontal"
@@ -40,4 +70,5 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp" />
     </LinearLayout>
+
 </LinearLayout>

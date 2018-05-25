@@ -88,7 +88,7 @@ public class Utils {
 
             if(commentDay.equals(nowDay)){
                 if(nowHour - commentHour < 1){
-                    if(nowHour - commentHour < 3){
+                    if(nowMinute - commentMinute < 3){
                         return "now";
                     }else{
                         return nowMinute - commentMinute + " min";
@@ -140,7 +140,7 @@ public class Utils {
 
     public static String retrieveValue(Context context, String key){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getString(key, "user");
+        return preferences.getString(key, "getUser");
     }
 
 }

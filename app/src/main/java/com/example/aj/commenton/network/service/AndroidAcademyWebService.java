@@ -19,8 +19,8 @@ public interface AndroidAcademyWebService {
 //    @GET("albums")
 //    Call<Album> listOfAlbumsByPageNumber(@Query("page") int pageNumber);
 
-    @GET("user")
-    Call<Users> user();
+    @GET("getUser")
+    Call<Users> getUser();
 
     @POST("registration")
     Call<Void> registration(@Body User user);
