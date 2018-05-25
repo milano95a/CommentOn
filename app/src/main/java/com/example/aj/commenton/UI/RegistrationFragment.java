@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,10 +31,11 @@ import retrofit2.Response;
 
 import static com.example.aj.commenton.util.Utils.hideKeyboardFromFragment;
 import static com.example.aj.commenton.util.Utils.isEmailValid;
+import static com.example.aj.commenton.util.Utils.isNetworkConnected;
 import static com.example.aj.commenton.util.Utils.isPasswordValid;
 import static com.example.aj.commenton.util.Utils.showMessage;
 
-public class RegistrationFragment extends Fragment{
+public class RegistrationFragment extends Fragment implements Callback<Void> {
 
     private final String LOG_TAG = RegistrationFragment.class.getName();
 
@@ -54,6 +56,7 @@ public class RegistrationFragment extends Fragment{
     private String mEmail;
     private String mPassword;
     private String mConfirmPassword;
+    private FragmentActivity mActivity;
 
     @Nullable
     @Override
@@ -61,43 +64,82 @@ public class RegistrationFragment extends Fragment{
         View rootView = inflater.inflate(R.layout.fragment_registration,container,false);
         ButterKnife.bind(this,rootView);
 
+        mActivity = this.getActivity();
+
         return rootView;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().setTitle(R.string.registration_text);
+
+        mActivity.setTitle(R.string.registration_text);
     }
 
     @OnClick(R.id.registration_button)
-    void attemptRegister(){
+    void attemptRegistration(){
 
-        if (isFormValid() && isNetworkAvailable()){
-            showProgress(true);
+        if (isFormValid()){
+            if(isNetworkConnected(mActivity)){
 
-            hideKeyboardFromFragment(this.getContext(), mRegistrationForm);
+                showProgressBar(true);
 
-            User user = new User(mName,mEmail, mPassword);
+                hideKeyboard();
 
-            AndroidAcademyWebService androidAcademyService = RetrofitInstance
-                    .retrofitInstanceWithAndroidAcademy()
-                    .create(AndroidAcademyWebService.class);
-            Call<Void> registrationCall = androidAcademyService.registration(user);
+                User user = new User(mName,mEmail, mPassword);
 
-            RegistrationCallback registrationCallback = new RegistrationCallback();
-            registrationCall.enqueue(registrationCallback);
+                AndroidAcademyWebService webService = RetrofitInstance
+                        .retrofitInstanceWithAndroidAcademy()
+                        .create(AndroidAcademyWebService.class);
+                Call<Void> registrationTask = webService.registration(user);
+
+                registrationTask.enqueue(this);
+            }else{
+                showMessage(mRegistrationForm, R.string.no_internet_connection);
+            }
         }
 
     }
 
     @OnClick(R.id.login_button)
     void navigateToLogin(){
-        getActivity().getSupportFragmentManager()
+        mActivity.getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(R.anim.enter_from_left,R.anim.exit_to_right)
                 .replace(R.id.fragment_container, new LoginFragment())
                 .commit();
+    }
+
+    @Override
+    public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+        if(response.isSuccessful()){
+            Log.wtf(LOG_TAG,"SUCCESS");
+            Utils.storeValue(getActivity(), Constants.USERNAME,mName);
+            navigateToHome();
+        }else{
+            Log.wtf(LOG_TAG,"FAILED");
+
+            showProgressBar(false);
+
+            mEmailLayout.setError(getString(R.string.user_already_registered));
+            mEmailView.requestFocus();
+        }
+    }
+
+    @Override
+    public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+        Log.wtf(LOG_TAG,t.getMessage());
+
+        showProgressBar(false);
+        showMessage(mRegistrationForm, R.string.unknown_exception);
+    }
+
+    private void hideKeyboard() {
+        if(this.getActivity() != null ) {
+            hideKeyboardFromFragment(this.getActivity(), mRegistrationForm);
+        }else{
+            Log.wtf(LOG_TAG, "getActivity() returns null");
+        }
     }
 
     private boolean isFormValid(){
@@ -155,20 +197,11 @@ public class RegistrationFragment extends Fragment{
         }
     }
 
-    private boolean isNetworkAvailable(){
-        if(!Utils.isNetworkConnected(this.getContext())){
-            showMessage(mRegistrationForm, R.string.no_internet_connection);
-            return false;
-        }
-
-        return true;
-    }
-
     private void navigateToHome() {
         Intent intent = new Intent(
                 RegistrationFragment.this.getActivity(),
                 AlbumListActivity.class);
-        RegistrationFragment.this.getActivity().finish();
+        mActivity.finish();
         startActivity(intent);
     }
 
@@ -179,35 +212,9 @@ public class RegistrationFragment extends Fragment{
         mConfirmPasswordLayout.setError(null);
     }
 
-    private void showProgress(boolean show) {
+    private void showProgressBar(boolean show) {
         mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
         mRegistrationForm.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
-    class RegistrationCallback implements Callback<Void> {
-
-        @Override
-        public void onResponse(Call<Void> call, Response<Void> response) {
-            if(response.isSuccessful()){
-                Log.wtf(LOG_TAG,"SUCCESS");
-                Utils.storeValue(getActivity(), Constants.USERNAME,mName);
-                navigateToHome();
-            }else{
-                Log.wtf(LOG_TAG,"FAILED");
-
-                showProgress(false);
-
-                mEmailLayout.setError(getString(R.string.user_already_registered));
-                mEmailView.requestFocus();
-            }
-        }
-
-        @Override
-        public void onFailure(Call<Void> call, Throwable t) {
-            Log.wtf(LOG_TAG,t.getMessage());
-
-            showProgress(false);
-            showMessage(mRegistrationForm, R.string.unknown_exception);
-        }
-    }
 }

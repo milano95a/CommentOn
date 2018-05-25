@@ -7,8 +7,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,14 +47,15 @@ public class LoginFragment extends Fragment implements Callback<Users>{
     @BindView(R.id.login_button) Button mLoginButton;
     @BindView(R.id.registration_button) Button mRegistrationButton;
 
-    private String mEmail;
-    private String mPassword;
+    private FragmentActivity mActivity;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_login,container,false);
         ButterKnife.bind(this,rootView);
+
+        mActivity = getActivity();
 
         return rootView;
     }
@@ -63,8 +64,8 @@ public class LoginFragment extends Fragment implements Callback<Users>{
     void attemptLogin(){
 
         if (isFormValid()) {
-            if(isNetworkConnected(getActivity())){
-                showProgress(true);
+            if(isNetworkConnected(mActivity)){
+                showProgressBar(true);
 
                 hideKeyboard();
 
@@ -84,7 +85,7 @@ public class LoginFragment extends Fragment implements Callback<Users>{
 
     @OnClick(R.id.registration_button)
     void navigateToRegistration(){
-        getActivity().getSupportFragmentManager()
+        mActivity.getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(R.anim.enter_from_right,R.anim.exit_to_left)
                 .replace(R.id.fragment_container, new RegistrationFragment())
@@ -94,7 +95,7 @@ public class LoginFragment extends Fragment implements Callback<Users>{
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().setTitle(R.string.login_text);
+        mActivity.setTitle(R.string.login_text);
     }
 
     @Override
@@ -106,7 +107,7 @@ public class LoginFragment extends Fragment implements Callback<Users>{
 
             navigateToHome();
         }else{
-            showProgress(false);
+            showProgressBar(false);
 
             mEmailLayout.setError(getString(R.string.check_your_email));
             mEmailView.requestFocus();
@@ -115,13 +116,13 @@ public class LoginFragment extends Fragment implements Callback<Users>{
     }
 
     @Override
-    public void onFailure(Call<Users> call, Throwable t) {
-        showProgress(false);
+    public void onFailure(@NonNull Call<Users> call, @NonNull Throwable t) {
+        showProgressBar(false);
         showMessage(mLoginFormView, R.string.unknown_exception);
     }
 
     private void hideKeyboard() {
-        hideKeyboardFromFragment(this.getContext(), mLoginFormView);
+        hideKeyboardFromFragment(mActivity, mLoginFormView);
     }
 
     private void saveUserName(String username) {
@@ -132,23 +133,23 @@ public class LoginFragment extends Fragment implements Callback<Users>{
 
         removeErrorMessages();
 
-        mEmail = mEmailView.getText().toString();
-        mPassword = mPasswordView.getText().toString();
+        String email = mEmailView.getText().toString();
+        String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        if (isPasswordValid(mPassword)) {
+        if (isPasswordValid(password)) {
             mPasswordLayout.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
-        if (TextUtils.isEmpty(mEmail)) {
+        if (TextUtils.isEmpty(email)) {
             mEmailLayout.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(mEmail)) {
+        } else if (!isEmailValid(email)) {
             mEmailLayout.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -167,7 +168,7 @@ public class LoginFragment extends Fragment implements Callback<Users>{
         Intent intent = new Intent(
                 LoginFragment.this.getActivity(),
                 AlbumListActivity.class);
-        LoginFragment.this.getActivity().finish();
+        mActivity.finish();
         startActivity(intent);
     }
 
@@ -176,7 +177,7 @@ public class LoginFragment extends Fragment implements Callback<Users>{
         mPasswordLayout.setError(null);
     }
 
-    private void showProgress(boolean show) {
+    private void showProgressBar(boolean show) {
         mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
         mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
     }
