@@ -7,9 +7,21 @@
     android:layout_height="match_parent"
     tools:context=".UI.AlbumListActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view_album_list"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/txt_no_internet"
+            android:layout_centerInParent="true"
+            android:text="@string/no_internet_connection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_album_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </RelativeLayout>
 
 </android.support.v4.widget.SwipeRefreshLayout>

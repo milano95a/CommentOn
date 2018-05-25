@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.aj.commenton.Constants;
+import com.example.aj.commenton.util.Constants;
 import com.example.aj.commenton.R;
 import com.example.aj.commenton.UI.AlbumItemActivity;
 import com.example.aj.commenton.model.Album;

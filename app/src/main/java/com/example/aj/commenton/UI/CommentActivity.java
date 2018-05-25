@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import com.example.aj.commenton.Constants;
+import com.example.aj.commenton.util.Constants;
 import com.example.aj.commenton.R;
 import com.example.aj.commenton.adapter.CommentAdapter;
 import com.example.aj.commenton.exception.AuthenticationClientNotFound;
@@ -39,6 +39,7 @@ public class CommentActivity extends AppCompatActivity implements Callback<Comme
 //    todo; save username in shared preferences
 //    todo; operations on time
 //    todo; rom + sqlite
+//    todo; update callback listeners
 
     private final String LOG_TAG = CommentActivity.class.getName();
 

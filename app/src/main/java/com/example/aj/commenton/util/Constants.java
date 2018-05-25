@@ -1,4 +1,4 @@
-package com.example.aj.commenton;
+package com.example.aj.commenton.util;
 
 public class Constants {
 

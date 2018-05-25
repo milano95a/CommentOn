@@ -1,5 +1,7 @@
 package com.example.aj.commenton.model;
 
+import android.arch.persistence.room.Entity;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Album {
