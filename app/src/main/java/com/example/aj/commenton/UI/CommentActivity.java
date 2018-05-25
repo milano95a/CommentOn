@@ -3,14 +3,18 @@ package com.example.aj.commenton.UI;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -56,6 +60,7 @@ public class CommentActivity extends AppCompatActivity{
     @BindView(R.id.txt_no_internet) TextView mTextViewNoInternet;
     @BindView(R.id.progress_bar) ProgressBar mProgressBar;
     @BindView(R.id.ly_comment_view) View mCommentView;
+    @BindView(R.id.parent_view) View mParentView;
 
     private Album mAlbum;
     private CommentAdapter mAdapter;
@@ -67,7 +72,7 @@ public class CommentActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
         ButterKnife.bind(this);
-
+        setTitle("Comment On...");
         init();
     }
 
@@ -111,8 +116,6 @@ public class CommentActivity extends AppCompatActivity{
         mAdapter = new CommentAdapter(this,mComments);
         mRecyclerView.setAdapter(mAdapter);
 
-        setTitle(mAlbum.getName());
-
         tryToGetComments();
     }
 
@@ -135,7 +138,7 @@ public class CommentActivity extends AppCompatActivity{
             postCommentWithAlbumId(mEdtComment.getText().toString(), mAlbum.getId());
 
         }else{
-            showMessage(mCommentView, R.string.no_internet_connection);
+            showMessageOnTop(R.string.no_internet_connection);
         }
     }
 
@@ -160,7 +163,7 @@ public class CommentActivity extends AppCompatActivity{
         public void onResponse(@NonNull Call<Comments> call, @NonNull Response<Comments> response) {
             Log.wtf(LOG_TAG, new Gson().toJson(response.body()));
             if(response.isSuccessful()){
-
+                showProgressBar(false);
                 mComments.addAll(response.body().getData());
                 mAdapter.notifyItemRangeInserted(0,mComments.size() -1);
 
@@ -170,7 +173,7 @@ public class CommentActivity extends AppCompatActivity{
                 @SuppressLint("StringFormatMatches")
                 String message = getResources().getString(R.string.posting_comment_failed, response.code());
 
-                showMessage(mCommentView, message);
+                showMessageOnTop(message);
             }
         }
 
@@ -178,7 +181,7 @@ public class CommentActivity extends AppCompatActivity{
         public void onFailure(@NonNull Call<Comments> call, @NonNull Throwable t) {
             Log.wtf(LOG_TAG, t.getMessage());
 
-            showMessage(mCommentView, R.string.get_comments_failed_try_again);
+            showMessageOnTop(R.string.get_comments_failed_try_again);
         }
     }
 
@@ -216,11 +219,8 @@ public class CommentActivity extends AppCompatActivity{
             }else{
 //                Log.wtf(LOG_TAG,"Status: " + response.code());
 
-                @SuppressLint("StringFormatMatches")
-                String message = getResources().getString(R.string.posting_comment_failed, response.code());
-
-                showMessage(mCommentView, message);
-
+                String message = getResources().getString(R.string.posting_comment_failed) + " " + response.code();
+                showMessageOnTop(message);
             }
         }
 
@@ -229,8 +229,32 @@ public class CommentActivity extends AppCompatActivity{
 
             Log.wtf(LOG_TAG,t.getMessage());
 
-            showMessage(mCommentView, R.string.post_failed_try_again);
+            showMessageOnTop(R.string.post_failed_try_again);
         }
+    }
+
+    private void showMessageOnTop(int resourceId){
+        showMessage(getResources().getString(resourceId));
+    }
+
+    private void showMessageOnTop(String message){
+        showMessage(message);
+    }
+
+    private void showMessage(String message){
+        Snackbar snack = Snackbar.make(mParentView, message, Snackbar.LENGTH_LONG);
+        snack.removeCallback(new Snackbar.Callback(){
+            @Override
+            public void onDismissed(Snackbar transientBottomBar, int event) {
+                super.onDismissed(transientBottomBar, event);
+            }
+        });
+        View view = snack.getView();
+        FrameLayout.LayoutParams params =(FrameLayout.LayoutParams)view.getLayoutParams();
+        params.gravity = Gravity.TOP;
+        view.setLayoutParams(params);
+        snack.show();
+
     }
 
     private void addCommentToList(String comment){

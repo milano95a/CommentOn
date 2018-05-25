@@ -59,8 +59,11 @@ public class AlbumListActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
+        setTitle("Albums");
+
 
         init();
+
 
         tryToLoadAlbumsByPageNumber(mFirstPage);
     }

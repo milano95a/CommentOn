@@ -25,7 +25,7 @@
     <string name="post_button">Post</string>
     <string name="btn_try_again">try again</string>
 
-    <string name="posting_comment_failed" >Posting comment failed with status code %0%d .</string>
+    <string name="posting_comment_failed" >Posting comment failed with status code </string>
     <string name="post_failed_try_again">Posting failed try again later</string>
     <string name="get_comments_failed_try_again">Could not get comments. Please try again !</string>
 </resources>

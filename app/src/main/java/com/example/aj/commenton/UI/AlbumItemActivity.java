@@ -34,7 +34,6 @@ public class AlbumItemActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         init();
-
     }
 
     private void init() {
