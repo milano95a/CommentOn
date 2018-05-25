@@ -63,6 +63,13 @@ public class Utils {
                 .show();
     }
 
+    public static void showMessage(View view, String message) {
+        Snackbar.make(view,
+                message,
+                Snackbar.LENGTH_LONG)
+                .show();
+    }
+
     public static String convertDateToString(Date date){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'KK:mm:ss");
         return sdf.format(date);
